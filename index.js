@@ -65,7 +65,7 @@ let lists = []
 
 const buttonContainer = document.querySelector('.button-wrapper')
 
-function createList(name, index) {
+function createList(name, id) {
     let listBtn = document.createElement('span')
     listBtn.classList.add('listBtn')
     
@@ -82,10 +82,14 @@ function createList(name, index) {
     
     buttonContainer.appendChild(listBtn)
     
-    deleteList.addEventListener('click', function(){
-        lists.splice(index, 1)
+    deleteList.addEventListener('click', function(event){
+        const position = lists.findIndex(function(item) {
+            return item.ID === id
+        })
+        lists.splice(position, 1)
         localStorage.setItem('lists', JSON.stringify(lists))
         listBtn.remove()
+        event.stopPropagation()
     })
     
     nameSpan.addEventListener('keydown', function(event){
@@ -96,7 +100,10 @@ function createList(name, index) {
     })
     
     nameSpan.addEventListener('blur', function(){
-        lists[index] = nameSpan.textContent
+    const position = lists.findIndex(function(item) {
+        return item.ID === id
+    })
+    lists[position].name = nameSpan.textContent
     localStorage.setItem('lists', JSON.stringify(lists))
     })
     listBtn.addEventListener('click', function(){
@@ -108,26 +115,36 @@ function createList(name, index) {
     })
 }
 
+let nextID = 1
 
 const saved = localStorage.getItem('lists')
 if (saved) {
     lists = JSON.parse(saved)
-    lists.forEach(function(name, index) {
-        createList(name, index)
+    if (lists.length === 0) {
+        nextID = 1
+    } else {
+        nextID = Math.max(...lists.map(function(item) {return item.ID})) + 1
+    }
+    lists.forEach(function(list) {
+        createList(list.name, list.ID)
     })
 } else {
-    lists.push('New List')
+    lists.push({ID:nextID , name: 'New List'})
     localStorage.setItem('lists', JSON.stringify(lists))
-    createList('New List')
+    createList('New List', nextID)
+    nextID++
 }
 const firstList = document.querySelector('.listBtn')
-firstList.classList.add('selected')
+if(firstList){
+    firstList.classList.add('selected')
+}
 
 const newList = document.getElementById('btn2')
 newList.addEventListener('click', function(){
-    lists.push('New List')
+    lists.push({ID:nextID , name: 'New List'})
     localStorage.setItem('lists', JSON.stringify(lists))
-    createList('New List')
+    createList('New List', nextID)
+    nextID++
 })
 
 
