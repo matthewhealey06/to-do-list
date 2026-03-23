@@ -148,4 +148,26 @@ newList.addEventListener('click', function(){
 })
 
 
+const addToDo = document.getElementById('addToDo')
+const toDoContainer = document.getElementById('toDoContainer')
+
+addToDo.addEventListener('click', function(){
+    const taskDiv = document.createElement('div')
+    toDoContainer.appendChild(taskDiv)
+    taskDiv.classList.add('taskDiv')
+
+    const checkbox = document.createElement('input')
+    checkbox.setAttribute("type", "checkbox")
+    checkbox.classList.add('checkbox')
+    taskDiv.appendChild(checkbox)
+    const input = document.createElement('input')
+    input.classList.add('textInput')
+    taskDiv.appendChild(input)
+    input.setAttribute('placeholder', 'New Task')
+})
+
+
+
+/*-------------------------*/
+
 renderCalendar()

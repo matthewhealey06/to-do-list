@@ -198,8 +198,59 @@ h1{
     width: 75%;
     display: flex;
     align-items: flex-start;
+    flex-direction: column;
+}
+.middle-top{
+    display: flex;
+    width: 100%;
     justify-content: space-between;
-    padding: 50px 25%;
+    padding: 30px 30%;
+}
+.middle-bottom{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    padding-top: 100px;
+}
+.taskDiv{
+    display: flex;
+    background-color: #4c4c4c;
+    border-radius: 6px;
+
+}
+#toDoContainer{
+    width: 500px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+#toDoContainer .checkbox{
+    width: 25px;
+    height: 25px;
+    margin: 15px;
+    background-color: white;
+    align-self: center;
+    border-radius: 50%;
+    vertical-align: middle;
+    border: 1px solid #387833;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+
+#toDoContainer .checkbox:checked {
+    background-color: #317833;
+}
+
+#toDoContainer .textInput{
+    width: 60%;
+    margin: 15px;
+    font-size: 1.6em;
+    border: none;
+    height: 50px;
+    background-color: transparent;
 }
 .middle button{
     background-color: transparent;
