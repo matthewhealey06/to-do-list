@@ -27,7 +27,7 @@ h1{
     width: 100%;
 }
 .left{
-    width: 25%;
+    width: 20%;
     height: 100vh;
     background-color: rgb(36, 38, 39);
     display: flex;
@@ -195,7 +195,7 @@ h1{
     font-weight: bold;
 }
 .middle{
-    width: 75%;
+    width: 80%;
     display: flex;
     align-items: flex-start;
     flex-direction: column;
@@ -214,16 +214,16 @@ h1{
 }
 .taskDiv{
     display: flex;
-    background-color: #4c4c4c;
+    background-color: #282828;
     border-radius: 6px;
 
 }
 #toDoContainer{
-    width: 500px;
+    width: 46%;
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 10px;
 }
 #toDoContainer .checkbox{
     width: 25px;
@@ -241,6 +241,8 @@ h1{
 }
 
 #toDoContainer .checkbox:checked {
+    appearance: auto;
+    clip-path: circle(50% at 50% 50%);
     background-color: #317833;
 }
 
@@ -280,9 +282,19 @@ h1{
         display: none;
     }
     .middle{
-        padding: 50px 10%;
+        padding: 50px 0;
+        margin: 0;
+    }
+    .middle-top{
+        padding: 10%;
     }
     .left{
         width: 40%;
-    };
+    }
+    #toDoContainer{
+        width: 80%;
+    }
+    .middle-bottom{
+        width: 100%;
+    }
 }
