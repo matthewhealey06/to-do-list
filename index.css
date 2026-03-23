@@ -28,7 +28,8 @@ h1{
 }
 .left{
     width: 20%;
-    height: 100vh;
+    min-height: 100vh;
+    height: 100%;
     background-color: rgb(36, 38, 39);
     display: flex;
     flex-direction: column;
@@ -213,10 +214,11 @@ h1{
     padding-top: 100px;
 }
 .taskDiv{
-    display: flex;
+    display: grid;
     background-color: #282828;
     border-radius: 6px;
-
+    align-items: center;
+    grid-template-columns: auto 1fr auto;
 }
 #toDoContainer{
     width: 46%;
@@ -260,8 +262,26 @@ h1{
     font-size: 1.2em;
     cursor: pointer;
 }
-
-
+.deleteTask{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-right: 0px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    opacity: 0;
+    margin-right: 15px;
+}
+.taskDiv:hover .deleteTask {
+    opacity: 1;
+}
+.taskDiv .deleteTask:hover{
+    background-color: #4c4c4c;
+    transition: all 0.3s ease;
+}
 
 /*-----------------------------------------*/
 

@@ -164,6 +164,17 @@ addToDo.addEventListener('click', function(){
     input.classList.add('textInput')
     taskDiv.appendChild(input)
     input.setAttribute('placeholder', 'New Task')
+
+    const deleteTask = document.createElement('span')
+    deleteTask.textContent = '\u2716'
+    deleteTask.classList.add('deleteTask')
+    deleteTask.contentEditable = 'false'
+    taskDiv.appendChild(deleteTask)
+
+    deleteTask.addEventListener('click', function(event){
+        taskDiv.remove()
+        event.stopPropagation()
+    })
 })
 
 
