@@ -141,7 +141,7 @@ if(firstList){
 
 const newList = document.getElementById('btn2')
 newList.addEventListener('click', function(){
-    lists.push({ID:nextID , name: 'New List'})
+    lists.push({ID:nextID , name: 'New List', todos: []})
     localStorage.setItem('lists', JSON.stringify(lists))
     createList('New List', nextID)
     nextID++
@@ -150,33 +150,81 @@ newList.addEventListener('click', function(){
 
 const addToDo = document.getElementById('addToDo')
 const toDoContainer = document.getElementById('toDoContainer')
+let todo = []
+let nextToDoID = 1
 
-addToDo.addEventListener('click', function(){
+function createToDo(name, id, checked){
     const taskDiv = document.createElement('div')
-    toDoContainer.appendChild(taskDiv)
-    taskDiv.classList.add('taskDiv')
+        toDoContainer.appendChild(taskDiv)
+        taskDiv.classList.add('taskDiv')
 
     const checkbox = document.createElement('input')
-    checkbox.setAttribute("type", "checkbox")
-    checkbox.classList.add('checkbox')
-    taskDiv.appendChild(checkbox)
+        checkbox.setAttribute("type", "checkbox")
+        checkbox.checked = checked
+        checkbox.classList.add('checkbox')
+        taskDiv.appendChild(checkbox)
     const input = document.createElement('input')
-    input.classList.add('textInput')
-    taskDiv.appendChild(input)
-    input.setAttribute('placeholder', 'New Task')
+        input.classList.add('textInput')
+        taskDiv.appendChild(input)
+        input.setAttribute('placeholder', 'New Task')
+        input.value = name
 
     const deleteTask = document.createElement('span')
-    deleteTask.textContent = '\u2716'
-    deleteTask.classList.add('deleteTask')
-    deleteTask.contentEditable = 'false'
-    taskDiv.appendChild(deleteTask)
+        deleteTask.textContent = '\u2716'
+        deleteTask.classList.add('deleteTask')
+        deleteTask.contentEditable = 'false'
+        taskDiv.appendChild(deleteTask)
 
     deleteTask.addEventListener('click', function(event){
+        const position = todo.findIndex(function(item) {
+        return item.ID === id
+    })
+    todo.splice(position, 1)
+    localStorage.setItem('todo', JSON.stringify(todo))
         taskDiv.remove()
         event.stopPropagation()
     })
-})
+    checkbox.addEventListener('click', function(){
+        const position = todo.findIndex(function(item) {
+        return item.ID === id
+    })
+        todo[position].checked = checkbox.checked
+        localStorage.setItem('todo', JSON.stringify(todo))
+    })
+    input.addEventListener('keydown', function(event){
+        if(event.key === 'Enter'){
+            event.preventDefault()
+            input.blur()
+        }
+    })
+    input.addEventListener('blur', function(){
+        const position = todo.findIndex(function(item) {
+        return item.ID === id
+    })
+    todo[position].name = input.value
+    localStorage.setItem('todo', JSON.stringify(todo))
+    })
 
+}
+addToDo.addEventListener('click', function(){
+        todo.push({ID: nextToDoID, checked: false, name: ''})
+        localStorage.setItem('todo', JSON.stringify(todo))
+        createToDo('', nextToDoID, false)
+        nextToDoID++
+    })
+
+const toDoSaved = localStorage.getItem('todo')
+if (toDoSaved) {
+    todo = JSON.parse(toDoSaved)
+    if (todo.length === 0) {
+        nextToDoID = 1
+    } else {
+        nextToDoID = Math.max(...todo.map(function(item) {return item.ID})) + 1
+    }
+    todo.forEach(function(todo) {
+        createToDo(todo.name, todo.ID, todo.checked)
+    })
+}
 
 
 /*-------------------------*/

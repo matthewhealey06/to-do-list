@@ -127,8 +127,8 @@ h1{
 .right #btn3{
     background-color: transparent;
     border: none;
-    position: fixed;
-    right: 260px;
+    align-self: flex-start;
+    position: relative;
     transition: all .4s ease;
 }
 .right #btn4{
@@ -186,7 +186,7 @@ h1{
 }
 .right.closed #btn3{
     position: fixed;
-    right: 350px;
+    right:100%;
     transform: rotate(180deg);
 }
 .month-year{
@@ -228,8 +228,8 @@ h1{
     gap: 10px;
 }
 #toDoContainer .checkbox{
-    width: 25px;
-    height: 25px;
+    width: 28px;
+    height: 28px;
     margin: 15px;
     background-color: white;
     align-self: center;
@@ -249,12 +249,19 @@ h1{
 }
 
 #toDoContainer .textInput{
-    width: 60%;
+    width: 80%;
     margin: 15px;
     font-size: 1.6em;
     border: none;
     height: 50px;
     background-color: transparent;
+    white-space: 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
+}
+.textInput:focus{
+    outline: none;
 }
 .middle button{
     background-color: transparent;
@@ -294,6 +301,12 @@ h1{
     }
     .left #btn2{
         font-size: 1.1em;
+    }
+    #toDoContainer{
+        width: 60%;
+    }
+    .middle-top{
+        padding: 10% 18%;
     }
 }
 @media(max-width:765px){
