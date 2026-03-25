@@ -68,6 +68,7 @@ const buttonContainer = document.querySelector('.button-wrapper')
 function createList(name, id) {
     let listBtn = document.createElement('span')
     listBtn.classList.add('listBtn')
+    listBtn.dataset.id = id
     
     const nameSpan = document.createElement('span')
     nameSpan.textContent = name
@@ -112,10 +113,20 @@ function createList(name, id) {
                     currentList.classList.remove('selected');
                 }
                 listBtn.classList.add('selected');
+        toDoContainer.innerHTML = ''
+        const selectedList = lists.find(function(item){
+        return item.ID === id
+        })
+        selectedList.todos.forEach(function(todo) {
+    createToDo(todo.name, todo.ID, todo.checked, id)
+    
+})
     })
 }
 
 let nextID = 1
+const addToDo = document.getElementById('addToDo')
+const toDoContainer = document.getElementById('toDoContainer')
 
 const saved = localStorage.getItem('lists')
 if (saved) {
@@ -129,7 +140,7 @@ if (saved) {
         createList(list.name, list.ID)
     })
 } else {
-    lists.push({ID:nextID , name: 'New List'})
+    lists.push({ID:nextID , name: 'New List', todos:[]})
     localStorage.setItem('lists', JSON.stringify(lists))
     createList('New List', nextID)
     nextID++
@@ -137,7 +148,15 @@ if (saved) {
 const firstList = document.querySelector('.listBtn')
 if(firstList){
     firstList.classList.add('selected')
+    const firstListId = parseInt(firstList.dataset.id)
+    const selectedList = lists.find(function(item){
+    return item.ID === firstListId
+    })
+        selectedList.todos.forEach(function(todo) {
+        createToDo(todo.name, todo.ID, todo.checked, firstListId)
+    })
 }
+
 
 const newList = document.getElementById('btn2')
 newList.addEventListener('click', function(){
@@ -146,14 +165,10 @@ newList.addEventListener('click', function(){
     createList('New List', nextID)
     nextID++
 })
-
-
-const addToDo = document.getElementById('addToDo')
-const toDoContainer = document.getElementById('toDoContainer')
-let todo = []
+// let todo = []
 let nextToDoID = 1
 
-function createToDo(name, id, checked){
+function createToDo(name, id, checked, listId){
     const taskDiv = document.createElement('div')
         toDoContainer.appendChild(taskDiv)
         taskDiv.classList.add('taskDiv')
@@ -176,20 +191,26 @@ function createToDo(name, id, checked){
         taskDiv.appendChild(deleteTask)
 
     deleteTask.addEventListener('click', function(event){
-        const position = todo.findIndex(function(item) {
-        return item.ID === id
-    })
-    todo.splice(position, 1)
-    localStorage.setItem('todo', JSON.stringify(todo))
+        const list = lists.find(function(item){
+            return item.ID === listId
+        })
+        const position = list.todos.findIndex(function(item){
+            return item.ID === id
+        })
+        list.todos.splice(position, 1)
+        localStorage.setItem('lists', JSON.stringify(lists))
         taskDiv.remove()
         event.stopPropagation()
     })
     checkbox.addEventListener('click', function(){
-        const position = todo.findIndex(function(item) {
+        const list = lists.find(function(item){
+            return item.ID === listId
+        })
+        const position = list.todos.findIndex(function(item) {
         return item.ID === id
     })
-        todo[position].checked = checkbox.checked
-        localStorage.setItem('todo', JSON.stringify(todo))
+        list.todos[position].checked = checkbox.checked
+        localStorage.setItem('lists', JSON.stringify(lists))
     })
     input.addEventListener('keydown', function(event){
         if(event.key === 'Enter'){
@@ -198,22 +219,31 @@ function createToDo(name, id, checked){
         }
     })
     input.addEventListener('blur', function(){
-        const position = todo.findIndex(function(item) {
+        const list = lists.find(function(item){
+            return item.ID === listId
+        })
+        const position = list.todos.findIndex(function(item) {
         return item.ID === id
     })
-    todo[position].name = input.value
-    localStorage.setItem('todo', JSON.stringify(todo))
+    list.todos[position].name = input.value
+    localStorage.setItem('lists', JSON.stringify(lists))
     })
 
 }
 addToDo.addEventListener('click', function(){
-        todo.push({ID: nextToDoID, checked: false, name: ''})
-        localStorage.setItem('todo', JSON.stringify(todo))
-        createToDo('', nextToDoID, false)
+    const selected = document.querySelector('.listBtn.selected')
+    const selectedId = parseInt(selected.dataset.id)
+    const selectedList = lists.find(function(item){
+        return item.ID === selectedId
+    })
+
+        selectedList.todos.push({ID: nextToDoID, checked: false, name: ''})
+        localStorage.setItem('lists', JSON.stringify(lists))
+        createToDo('', nextToDoID, false, selectedId)
         nextToDoID++
     })
 
-const toDoSaved = localStorage.getItem('todo')
+/* const toDoSaved = localStorage.getItem('todo')
 if (toDoSaved) {
     todo = JSON.parse(toDoSaved)
     if (todo.length === 0) {
@@ -224,7 +254,7 @@ if (toDoSaved) {
     todo.forEach(function(todo) {
         createToDo(todo.name, todo.ID, todo.checked)
     })
-}
+} */
 
 
 /*-------------------------*/
