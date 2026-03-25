@@ -289,6 +289,12 @@ h1{
     background-color: #4c4c4c;
     transition: all 0.3s ease;
 }
+.noData{
+    font-size: 1.6em;
+    font-weight: bolder;
+    align-self: center;
+    justify-self: center;
+}
 
 /*-----------------------------------------*/
 

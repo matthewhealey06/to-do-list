@@ -118,9 +118,12 @@ function createList(name, id) {
         return item.ID === id
         })
         selectedList.todos.forEach(function(todo) {
-    createToDo(todo.name, todo.ID, todo.checked, id)
-    
-})
+    createToDo(todo.name, todo.ID, todo.checked, id)})
+    if(selectedList.todos.length === 0){
+    const noData = document.createElement('p')
+    noData.textContent = 'No Data'
+    noData.classList.add('noData')
+    toDoContainer.appendChild(noData)}
     })
 }
 
@@ -155,6 +158,12 @@ if(firstList){
         selectedList.todos.forEach(function(todo) {
         createToDo(todo.name, todo.ID, todo.checked, firstListId)
     })
+if(selectedList.todos.length === 0){
+        const noData = document.createElement('p')
+        noData.textContent = 'No Data'
+        noData.classList.add('noData')
+        toDoContainer.appendChild(noData)
+    }
 }
 
 
@@ -200,6 +209,12 @@ function createToDo(name, id, checked, listId){
         localStorage.setItem('lists', JSON.stringify(lists))
         taskDiv.remove()
         event.stopPropagation()
+        if(list.todos.length === 0){
+            const noData = document.createElement('p')
+            noData.textContent = 'No Data'
+            noData.classList.add('noData')
+            toDoContainer.appendChild(noData)
+        }
     })
     checkbox.addEventListener('click', function(){
         const list = lists.find(function(item){
@@ -227,7 +242,6 @@ function createToDo(name, id, checked, listId){
     list.todos[position].name = input.value
     localStorage.setItem('lists', JSON.stringify(lists))
     })
-
 }
 addToDo.addEventListener('click', function(){
     const selected = document.querySelector('.listBtn.selected')
@@ -240,7 +254,11 @@ addToDo.addEventListener('click', function(){
         localStorage.setItem('lists', JSON.stringify(lists))
         createToDo('', nextToDoID, false, selectedId)
         nextToDoID++
-    })
+    const noData = document.querySelector('.noData')
+    if(noData){
+        noData.remove()
+    }
+})
 
 
 /*-------------------------*/
