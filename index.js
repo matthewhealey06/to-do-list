@@ -165,7 +165,6 @@ newList.addEventListener('click', function(){
     createList('New List', nextID)
     nextID++
 })
-// let todo = []
 let nextToDoID = 1
 
 function createToDo(name, id, checked, listId){
@@ -242,19 +241,6 @@ addToDo.addEventListener('click', function(){
         createToDo('', nextToDoID, false, selectedId)
         nextToDoID++
     })
-
-/* const toDoSaved = localStorage.getItem('todo')
-if (toDoSaved) {
-    todo = JSON.parse(toDoSaved)
-    if (todo.length === 0) {
-        nextToDoID = 1
-    } else {
-        nextToDoID = Math.max(...todo.map(function(item) {return item.ID})) + 1
-    }
-    todo.forEach(function(todo) {
-        createToDo(todo.name, todo.ID, todo.checked)
-    })
-} */
 
 
 /*-------------------------*/
