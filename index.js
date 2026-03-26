@@ -96,7 +96,6 @@ function renderCalendar() {
       const hasTodo = selectedList.todos.some(function(todo) {
         return todo.date === dateString;
       });
-      console.log("hasTodo:", hasTodo);
       if (hasTodo) {
         numbers.classList.add("hasTask");
       }
@@ -163,27 +162,8 @@ function createList(name, id) {
       currentList.classList.remove("selected");
     }
     listBtn.classList.add("selected");
-    toDoContainer.innerHTML = "";
-    const selectedList = lists.find(function (item) {
-      return item.ID === id;
-    });
-
-    let dateSelected = null
-    const current = document.querySelector(".c-numbers .selected");
-    if(current){
-      dateSelected = `${current.textContent}-${month + 1}-${year}`
-    }
-    selectedList.todos.forEach(function (todo) {
-      if(dateSelected === null || todo.date === dateSelected){
-        createToDo(todo.name, todo.ID, todo.checked, id, todo.date)
-      } 
-    });
-    if (selectedList.todos.length === 0) {
-      const noData = document.createElement("p");
-      noData.textContent = "No Data";
-      noData.classList.add("noData");
-      toDoContainer.appendChild(noData);
-    }
+    renderTodos()
+    renderCalendar()
   });
 }
 
@@ -230,7 +210,8 @@ if (saved) {
 const firstList = document.querySelector(".listBtn");
 if (firstList) {
   firstList.classList.add("selected");
-  const firstListId = parseInt(firstList.dataset.id);
+  renderTodos()
+  /* const firstListId = parseInt(firstList.dataset.id);
   const selectedList = lists.find(function (item) {
     return item.ID === firstListId;
   });
@@ -242,7 +223,7 @@ if (firstList) {
     noData.textContent = "No Data";
     noData.classList.add("noData");
     toDoContainer.appendChild(noData);
-  }
+  } */
 }
 
 const newList = document.getElementById("btn2");
