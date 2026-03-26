@@ -178,6 +178,11 @@ h1{
     align-items: center;
     cursor: pointer;
 }
+.c-numbers span:hover{
+    background-color: #4c4c4c;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
 .right span{
     font-size: 1.1em;
 }
@@ -188,6 +193,10 @@ h1{
     position: fixed;
     right:100%;
     transform: rotate(180deg);
+}
+.hasTask{
+    background-color: rgba(107, 142, 108, 0.4);
+    border-radius: 50%;
 }
 .month-year{
     text-align: center;

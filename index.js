@@ -5,11 +5,31 @@ close.addEventListener("click", function () {
   right.classList.toggle("closed");
 });
 
+function renderTodos(){
+const selected = document.querySelector(".listBtn.selected");
+const selectedId = parseInt(selected.dataset.id);
+  toDoContainer.innerHTML = "";
+  const selectedList = lists.find(function (item) {
+    return item.ID === selectedId;
+  });
+
+  let dateSelected = null
+  const current = document.querySelector(".c-numbers .selected");
+  if(current){
+    dateSelected = `${current.textContent}-${month + 1}-${year}`
+  }
+  selectedList.todos.forEach(function (todo) {
+    if(dateSelected === null || todo.date === dateSelected){
+      createToDo(todo.name, todo.ID, todo.checked, selectedId, todo.date)
+    } 
+  });
+}
+
 const now = new Date();
 const span1 = document.querySelector(".month-year");
 const months = [
   "January",
-  "Febuary",
+  "February",
   "March",
   "April",
   "May",
@@ -64,7 +84,23 @@ function renderCalendar() {
         current.classList.remove("selected");
       }
       numbers.classList.add("selected");
+      renderTodos()
     });
+    const selected = document.querySelector(".listBtn.selected");
+    if (selected) {
+      const selectedId = parseInt(selected.dataset.id);
+      const selectedList = lists.find(function(item) {
+        return item.ID === selectedId;
+      });
+      const dateString = `${i}-${month + 1}-${year}`;
+      const hasTodo = selectedList.todos.some(function(todo) {
+        return todo.date === dateString;
+      });
+      console.log("hasTodo:", hasTodo);
+      if (hasTodo) {
+        numbers.classList.add("hasTask");
+      }
+    }
   }
 }
 clear.addEventListener("click", function () {
@@ -72,6 +108,7 @@ clear.addEventListener("click", function () {
   if (current) {
     current.classList.remove("selected");
   }
+  renderTodos()
 });
 
 let lists = [];
@@ -130,8 +167,16 @@ function createList(name, id) {
     const selectedList = lists.find(function (item) {
       return item.ID === id;
     });
+
+    let dateSelected = null
+    const current = document.querySelector(".c-numbers .selected");
+    if(current){
+      dateSelected = `${current.textContent}-${month + 1}-${year}`
+    }
     selectedList.todos.forEach(function (todo) {
-      createToDo(todo.name, todo.ID, todo.checked, id);
+      if(dateSelected === null || todo.date === dateSelected){
+        createToDo(todo.name, todo.ID, todo.checked, id, todo.date)
+      } 
     });
     if (selectedList.todos.length === 0) {
       const noData = document.createElement("p");
@@ -143,6 +188,7 @@ function createList(name, id) {
 }
 
 let nextID = 1;
+let nextToDoID = 1;
 const addToDo = document.getElementById("addToDo");
 const toDoContainer = document.getElementById("toDoContainer");
 
@@ -162,6 +208,19 @@ if (saved) {
   lists.forEach(function (list) {
     createList(list.name, list.ID);
   });
+  const allTodos = lists.flatMap(function (list) {
+    return list.todos;
+  });
+  if (allTodos.length === 0) {
+    nextToDoID = 1;
+  } else {
+    nextToDoID =
+      Math.max(
+        ...allTodos.map(function (todo) {
+          return todo.ID;
+        }),
+      ) + 1;
+  }
 } else {
   lists.push({ ID: nextID, name: "New List", todos: [] });
   localStorage.setItem("lists", JSON.stringify(lists));
@@ -176,7 +235,7 @@ if (firstList) {
     return item.ID === firstListId;
   });
   selectedList.todos.forEach(function (todo) {
-    createToDo(todo.name, todo.ID, todo.checked, firstListId);
+    createToDo(todo.name, todo.ID, todo.checked, firstListId, todo.date);
   });
   if (selectedList.todos.length === 0) {
     const noData = document.createElement("p");
@@ -193,9 +252,8 @@ newList.addEventListener("click", function () {
   createList("New List", nextID);
   nextID++;
 });
-let nextToDoID = 1;
 
-function createToDo(name, id, checked, listId) {
+function createToDo(name, id, checked, listId, date) {
   const taskDiv = document.createElement("div");
   toDoContainer.appendChild(taskDiv);
   taskDiv.classList.add("taskDiv");
@@ -234,6 +292,7 @@ function createToDo(name, id, checked, listId) {
       noData.classList.add("noData");
       toDoContainer.appendChild(noData);
     }
+    renderCalendar()
   });
   checkbox.addEventListener("click", function () {
     const list = lists.find(function (item) {
@@ -269,13 +328,31 @@ addToDo.addEventListener("click", function () {
     return item.ID === selectedId;
   });
   const noData = document.querySelector(".noData");
+
+  let dateSelected = null
+  const current = document.querySelector(".c-numbers .selected");
+  if(current){
+    dateSelected = `${current.textContent}-${month + 1}-${year}`
+  }
+
   if (noData) {
     noData.remove();
   }
-  selectedList.todos.push({ ID: nextToDoID, checked: false, name: "" });
+  selectedList.todos.push({ ID: nextToDoID, checked: false, name: "", date: dateSelected });
   localStorage.setItem("lists", JSON.stringify(lists));
-  createToDo("", nextToDoID, false, selectedId);
+  createToDo("", nextToDoID, false, selectedId, dateSelected);
   nextToDoID++;
+  const selectedDay = document.querySelector(".c-numbers .selected");
+  const selectedDayText = selectedDay ? selectedDay.textContent : null;
+  renderCalendar()
+  if (selectedDayText) {
+  const days = document.querySelectorAll(".c-numbers span");
+  days.forEach(function(day) {
+    if (day.textContent === selectedDayText) {
+      day.classList.add("selected");
+    }
+  });
+}
 });
 
 /*-------------------------*/
