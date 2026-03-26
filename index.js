@@ -23,6 +23,15 @@ const selectedId = parseInt(selected.dataset.id);
       createToDo(todo.name, todo.ID, todo.checked, selectedId, todo.date)
     } 
   });
+  if(toDoContainer.children.length === 0){
+    renderNoData();
+  }
+}
+function renderNoData(){
+  const noData = document.createElement("p");
+  noData.textContent = "No Data";
+  noData.classList.add("noData");
+  toDoContainer.appendChild(noData);
 }
 
 const now = new Date();
@@ -140,6 +149,8 @@ function createList(name, id) {
     localStorage.setItem("lists", JSON.stringify(lists));
     listBtn.remove();
     event.stopPropagation();
+    renderTodos()
+    renderCalendar()
   });
 
   nameSpan.addEventListener("keydown", function (event) {
@@ -211,19 +222,6 @@ const firstList = document.querySelector(".listBtn");
 if (firstList) {
   firstList.classList.add("selected");
   renderTodos()
-  /* const firstListId = parseInt(firstList.dataset.id);
-  const selectedList = lists.find(function (item) {
-    return item.ID === firstListId;
-  });
-  selectedList.todos.forEach(function (todo) {
-    createToDo(todo.name, todo.ID, todo.checked, firstListId, todo.date);
-  });
-  if (selectedList.todos.length === 0) {
-    const noData = document.createElement("p");
-    noData.textContent = "No Data";
-    noData.classList.add("noData");
-    toDoContainer.appendChild(noData);
-  } */
 }
 
 const newList = document.getElementById("btn2");
@@ -268,10 +266,7 @@ function createToDo(name, id, checked, listId, date) {
     taskDiv.remove();
     event.stopPropagation();
     if (list.todos.length === 0) {
-      const noData = document.createElement("p");
-      noData.textContent = "No Data";
-      noData.classList.add("noData");
-      toDoContainer.appendChild(noData);
+      renderNoData()
     }
     renderCalendar()
   });
@@ -339,3 +334,4 @@ addToDo.addEventListener("click", function () {
 /*-------------------------*/
 
 renderCalendar();
+renderTodos();
