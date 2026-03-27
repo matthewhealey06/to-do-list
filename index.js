@@ -1,33 +1,34 @@
 const close = document.getElementById("btn3");
 const right = document.querySelector(".right");
+let draggedTodo = null;
 
 close.addEventListener("click", function () {
   right.classList.toggle("closed");
 });
 
-function renderTodos(){
-const selected = document.querySelector(".listBtn.selected");
-const selectedId = parseInt(selected.dataset.id);
+function renderTodos() {
+  const selected = document.querySelector(".listBtn.selected");
+  const selectedId = parseInt(selected.dataset.id);
   toDoContainer.innerHTML = "";
   const selectedList = lists.find(function (item) {
     return item.ID === selectedId;
   });
 
-  let dateSelected = null
+  let dateSelected = null;
   const current = document.querySelector(".c-numbers .selected");
-  if(current){
-    dateSelected = `${current.textContent}-${month + 1}-${year}`
+  if (current) {
+    dateSelected = `${current.textContent}-${month + 1}-${year}`;
   }
   selectedList.todos.forEach(function (todo) {
-    if(dateSelected === null || todo.date === dateSelected){
-      createToDo(todo.name, todo.ID, todo.checked, selectedId, todo.date)
-    } 
+    if (dateSelected === null || todo.date === dateSelected) {
+      createToDo(todo.name, todo.ID, todo.checked, selectedId, todo.date);
+    }
   });
-  if(toDoContainer.children.length === 0){
+  if (toDoContainer.children.length === 0) {
     renderNoData();
   }
 }
-function renderNoData(){
+function renderNoData() {
   const noData = document.createElement("p");
   noData.textContent = "No Data";
   noData.classList.add("noData");
@@ -93,16 +94,16 @@ function renderCalendar() {
         current.classList.remove("selected");
       }
       numbers.classList.add("selected");
-      renderTodos()
+      renderTodos();
     });
     const selected = document.querySelector(".listBtn.selected");
     if (selected) {
       const selectedId = parseInt(selected.dataset.id);
-      const selectedList = lists.find(function(item) {
+      const selectedList = lists.find(function (item) {
         return item.ID === selectedId;
       });
       const dateString = `${i}-${month + 1}-${year}`;
-      const hasTodo = selectedList.todos.some(function(todo) {
+      const hasTodo = selectedList.todos.some(function (todo) {
         return todo.date === dateString;
       });
       if (hasTodo) {
@@ -116,7 +117,7 @@ clear.addEventListener("click", function () {
   if (current) {
     current.classList.remove("selected");
   }
-  renderTodos()
+  renderTodos();
 });
 
 let lists = [];
@@ -149,8 +150,8 @@ function createList(name, id) {
     localStorage.setItem("lists", JSON.stringify(lists));
     listBtn.remove();
     event.stopPropagation();
-    renderTodos()
-    renderCalendar()
+    renderTodos();
+    renderCalendar();
   });
 
   nameSpan.addEventListener("keydown", function (event) {
@@ -173,8 +174,8 @@ function createList(name, id) {
       currentList.classList.remove("selected");
     }
     listBtn.classList.add("selected");
-    renderTodos()
-    renderCalendar()
+    renderTodos();
+    renderCalendar();
   });
 }
 
@@ -221,7 +222,7 @@ if (saved) {
 const firstList = document.querySelector(".listBtn");
 if (firstList) {
   firstList.classList.add("selected");
-  renderTodos()
+  renderTodos();
 }
 
 const newList = document.getElementById("btn2");
@@ -233,8 +234,18 @@ newList.addEventListener("click", function () {
 });
 
 function createToDo(name, id, checked, listId, date) {
+  const toDoWrapper = document.createElement("div");
+  toDoContainer.appendChild(toDoWrapper);
+  toDoWrapper.classList.add("toDoWrapper");
+  toDoWrapper.draggable = true;
+  toDoWrapper.dataset.id = id;
+  const dragHandle = document.createElement("p");
+  dragHandle.classList.add("dragHandle");
+  toDoWrapper.appendChild(dragHandle);
+  dragHandle.textContent = " ⋮⋮ ";
+
   const taskDiv = document.createElement("div");
-  toDoContainer.appendChild(taskDiv);
+  toDoWrapper.appendChild(taskDiv);
   taskDiv.classList.add("taskDiv");
 
   const checkbox = document.createElement("input");
@@ -254,6 +265,65 @@ function createToDo(name, id, checked, listId, date) {
   deleteTask.contentEditable = "false";
   taskDiv.appendChild(deleteTask);
 
+  toDoWrapper.addEventListener('dragstart', function() {
+    draggedTodo = toDoWrapper;
+    toDoWrapper.classList.add('dragging');
+  });
+
+  toDoWrapper.addEventListener('dragend', function() {
+    toDoWrapper.classList.remove('dragging');
+    draggedTodo = null;
+  });
+
+  toDoWrapper.addEventListener('dragover', function(event) {
+    event.preventDefault();
+    if (draggedTodo && draggedTodo !== toDoWrapper) {
+      const rect = toDoWrapper.getBoundingClientRect();
+      const midpoint = rect.top + rect.height / 2;
+      
+      toDoWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
+      if (event.clientY < midpoint) {
+        toDoWrapper.classList.add('drag-over-top');
+      } else {
+        toDoWrapper.classList.add('drag-over-bottom');
+      }
+    }
+  });
+
+  toDoWrapper.addEventListener('dragleave', function() {
+    toDoWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
+  });
+
+  toDoWrapper.addEventListener('drop', function(event) {
+    event.preventDefault();
+    const isTop = toDoWrapper.classList.contains('drag-over-top');
+    toDoWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
+    
+    if (draggedTodo && draggedTodo !== toDoWrapper) {
+      if (isTop) {
+        toDoContainer.insertBefore(draggedTodo, toDoWrapper);
+      } else {
+        toDoContainer.insertBefore(draggedTodo, toDoWrapper.nextSibling);
+      }
+    }
+    const wrappers = toDoContainer.querySelectorAll(".toDoWrapper");
+    const newOrder = [];
+    wrappers.forEach(function(wrapper) {
+      newOrder.push(parseInt(wrapper.dataset.id));
+    });
+    const selected = document.querySelector(".listBtn.selected");
+    const selectedId = parseInt(selected.dataset.id);
+    const selectedList = lists.find(function (item) {
+      return item.ID === selectedId;
+    });
+    selectedList.todos = newOrder.map(function(todoId) {
+      return selectedList.todos.find(function(todo) {
+        return todo.ID === todoId;
+      });
+    });
+    localStorage.setItem('lists', JSON.stringify(lists))
+  });
+
   deleteTask.addEventListener("click", function (event) {
     const list = lists.find(function (item) {
       return item.ID === listId;
@@ -263,12 +333,12 @@ function createToDo(name, id, checked, listId, date) {
     });
     list.todos.splice(position, 1);
     localStorage.setItem("lists", JSON.stringify(lists));
-    taskDiv.remove();
+    toDoWrapper.remove();
     event.stopPropagation();
     if (list.todos.length === 0) {
-      renderNoData()
+      renderNoData();
     }
-    renderCalendar()
+    renderCalendar();
   });
   checkbox.addEventListener("click", function () {
     const list = lists.find(function (item) {
@@ -305,30 +375,35 @@ addToDo.addEventListener("click", function () {
   });
   const noData = document.querySelector(".noData");
 
-  let dateSelected = null
+  let dateSelected = null;
   const current = document.querySelector(".c-numbers .selected");
-  if(current){
-    dateSelected = `${current.textContent}-${month + 1}-${year}`
+  if (current) {
+    dateSelected = `${current.textContent}-${month + 1}-${year}`;
   }
 
   if (noData) {
     noData.remove();
   }
-  selectedList.todos.push({ ID: nextToDoID, checked: false, name: "", date: dateSelected });
+  selectedList.todos.push({
+    ID: nextToDoID,
+    checked: false,
+    name: "",
+    date: dateSelected,
+  });
   localStorage.setItem("lists", JSON.stringify(lists));
   createToDo("", nextToDoID, false, selectedId, dateSelected);
   nextToDoID++;
   const selectedDay = document.querySelector(".c-numbers .selected");
   const selectedDayText = selectedDay ? selectedDay.textContent : null;
-  renderCalendar()
+  renderCalendar();
   if (selectedDayText) {
-  const days = document.querySelectorAll(".c-numbers span");
-  days.forEach(function(day) {
-    if (day.textContent === selectedDayText) {
-      day.classList.add("selected");
-    }
-  });
-}
+    const days = document.querySelectorAll(".c-numbers span");
+    days.forEach(function (day) {
+      if (day.textContent === selectedDayText) {
+        day.classList.add("selected");
+      }
+    });
+  }
 });
 
 /*-------------------------*/
