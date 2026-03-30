@@ -18,7 +18,14 @@
             <div class="middle">
                 <div class="middle-top">
                     <button id="addToDo">+ Add To-Do</button>
-                    <button>Sort</button>
+                    <div class="sortContainer">
+                        <button id="sortBtn">Sort</button>
+                        <div class="sort-dropdown">
+                        <span class="sort-option active" data-sort="custom">Custom</span>
+                        <span class="sort-option" data-sort="name">Name</span>
+                        <span class="sort-option" data-sort="date">Date Created</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="middle-bottom">
                     <div id="toDoContainer"></div>

@@ -1,6 +1,7 @@
 const close = document.getElementById("btn3");
 const right = document.querySelector(".right");
 let draggedTodo = null;
+let currentSort = "custom";
 
 close.addEventListener("click", function () {
   right.classList.toggle("closed");
@@ -265,40 +266,41 @@ function createToDo(name, id, checked, listId, date) {
   deleteTask.contentEditable = "false";
   taskDiv.appendChild(deleteTask);
 
-  toDoWrapper.addEventListener('dragstart', function() {
+  toDoWrapper.addEventListener("dragstart", function () {
     draggedTodo = toDoWrapper;
-    toDoWrapper.classList.add('dragging');
+    toDoWrapper.classList.add("dragging");
+    sortDropdown.classList.remove("show");
   });
 
-  toDoWrapper.addEventListener('dragend', function() {
-    toDoWrapper.classList.remove('dragging');
+  toDoWrapper.addEventListener("dragend", function () {
+    toDoWrapper.classList.remove("dragging");
     draggedTodo = null;
   });
 
-  toDoWrapper.addEventListener('dragover', function(event) {
+  toDoWrapper.addEventListener("dragover", function (event) {
     event.preventDefault();
     if (draggedTodo && draggedTodo !== toDoWrapper) {
       const rect = toDoWrapper.getBoundingClientRect();
       const midpoint = rect.top + rect.height / 2;
-      
-      toDoWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
+
+      toDoWrapper.classList.remove("drag-over-top", "drag-over-bottom");
       if (event.clientY < midpoint) {
-        toDoWrapper.classList.add('drag-over-top');
+        toDoWrapper.classList.add("drag-over-top");
       } else {
-        toDoWrapper.classList.add('drag-over-bottom');
+        toDoWrapper.classList.add("drag-over-bottom");
       }
     }
   });
 
-  toDoWrapper.addEventListener('dragleave', function() {
-    toDoWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
+  toDoWrapper.addEventListener("dragleave", function () {
+    toDoWrapper.classList.remove("drag-over-top", "drag-over-bottom");
   });
 
-  toDoWrapper.addEventListener('drop', function(event) {
+  toDoWrapper.addEventListener("drop", function (event) {
     event.preventDefault();
-    const isTop = toDoWrapper.classList.contains('drag-over-top');
-    toDoWrapper.classList.remove('drag-over-top', 'drag-over-bottom');
-    
+    const isTop = toDoWrapper.classList.contains("drag-over-top");
+    toDoWrapper.classList.remove("drag-over-top", "drag-over-bottom");
+
     if (draggedTodo && draggedTodo !== toDoWrapper) {
       if (isTop) {
         toDoContainer.insertBefore(draggedTodo, toDoWrapper);
@@ -308,7 +310,7 @@ function createToDo(name, id, checked, listId, date) {
     }
     const wrappers = toDoContainer.querySelectorAll(".toDoWrapper");
     const newOrder = [];
-    wrappers.forEach(function(wrapper) {
+    wrappers.forEach(function (wrapper) {
       newOrder.push(parseInt(wrapper.dataset.id));
     });
     const selected = document.querySelector(".listBtn.selected");
@@ -316,12 +318,18 @@ function createToDo(name, id, checked, listId, date) {
     const selectedList = lists.find(function (item) {
       return item.ID === selectedId;
     });
-    selectedList.todos = newOrder.map(function(todoId) {
-      return selectedList.todos.find(function(todo) {
+    selectedList.todos = newOrder.map(function (todoId) {
+      return selectedList.todos.find(function (todo) {
         return todo.ID === todoId;
       });
     });
-    localStorage.setItem('lists', JSON.stringify(lists))
+    currentSort = 'custom';
+    const currentOption = document.querySelector(".sort-option.active");
+    if (currentOption) {
+      currentOption.classList.remove("active");
+    }
+    document.querySelector('[data-sort="custom"]').classList.add("active");
+    localStorage.setItem("lists", JSON.stringify(lists));
   });
 
   deleteTask.addEventListener("click", function (event) {
@@ -348,7 +356,11 @@ function createToDo(name, id, checked, listId, date) {
       return item.ID === id;
     });
     list.todos[position].checked = checkbox.checked;
+    list.todos.sort(function (a, b) {
+      return a.checked - b.checked;
+    });
     localStorage.setItem("lists", JSON.stringify(lists));
+    renderTodos();
   });
   input.addEventListener("keydown", function (event) {
     if (event.key === "Enter") {
@@ -384,11 +396,12 @@ addToDo.addEventListener("click", function () {
   if (noData) {
     noData.remove();
   }
-  selectedList.todos.push({
+  selectedList.todos.unshift({
     ID: nextToDoID,
     checked: false,
     name: "",
     date: dateSelected,
+    createdAt: Date.now()
   });
   localStorage.setItem("lists", JSON.stringify(lists));
   createToDo("", nextToDoID, false, selectedId, dateSelected);
@@ -404,8 +417,62 @@ addToDo.addEventListener("click", function () {
       }
     });
   }
+  renderTodos()
 });
 
+const sortBtn = document.getElementById("sortBtn");
+const sortDropdown = document.querySelector(".sort-dropdown");
+
+sortBtn.addEventListener("click", function () {
+  sortDropdown.classList.toggle("show");
+});
+const sortOptions = document.querySelectorAll(".sort-option");
+sortOptions.forEach(function (option) {
+  option.addEventListener("click", function () {
+    const currentOption = document.querySelector(".sort-option.active");
+    if (currentOption) {
+      currentOption.classList.remove("active");
+    }
+    option.classList.add("active");
+    currentSort = option.dataset.sort;
+    sortDropdown.classList.remove("show");
+    if (currentSort === "name") {
+      const selected = document.querySelector(".listBtn.selected");
+      const selectedId = parseInt(selected.dataset.id);
+      const selectedList = lists.find(function (item) {
+        return item.ID === selectedId;
+      });
+      selectedList.todos.sort(function (a, b) {
+        if (a.checked !== b.checked) {
+          return a.checked - b.checked;
+        }
+        return a.name.localeCompare(b.name);
+      });
+      localStorage.setItem("lists", JSON.stringify(lists));
+      renderTodos();
+    }
+    if (currentSort === "date") {
+      const selected = document.querySelector(".listBtn.selected");
+      const selectedId = parseInt(selected.dataset.id);
+      const selectedList = lists.find(function (item) {
+        return item.ID === selectedId;
+      });
+      selectedList.todos.sort(function (a, b) {
+        if (a.checked !== b.checked) {
+          return a.checked - b.checked;
+        }
+        return b.createdAt - a.createdAt;
+      });
+      localStorage.setItem("lists", JSON.stringify(lists));
+      renderTodos();
+    }
+  });
+});
+document.addEventListener("click", function(event) {
+  if (!sortBtn.contains(event.target) && !sortDropdown.contains(event.target)) {
+    sortDropdown.classList.remove("show");
+  }
+});
 /*-------------------------*/
 
 renderCalendar();

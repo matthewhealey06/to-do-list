@@ -332,7 +332,42 @@ h1{
 .drag-over-bottom {
   border-bottom: 2px solid #317833;
 }
-
+.sortContainer{
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.sort-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4c4c4c;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: fit-content;
+    font-size: 1.1em;
+    white-space: nowrap;
+    padding: 5px;
+    margin-top: 10px;
+    border-radius: 6px;
+    display: none;
+}
+.sort-dropdown.show{
+    display: flex;
+}
+.sort-dropdown span{
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.sort-dropdown span:hover:not(.active){
+    background-color: #73ad75;
+}
+.sort-option.active{
+    background-color: #317833;
+}
 /*-----------------------------------------*/
 
 @media(max-width:1000px){
