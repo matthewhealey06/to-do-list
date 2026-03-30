@@ -1,7 +1,7 @@
 const close = document.getElementById("btn3");
 const right = document.querySelector(".right");
 let draggedTodo = null;
-let currentSort = "custom";
+let currentSort = localStorage.getItem("currentSort") || "custom";
 
 close.addEventListener("click", function () {
   right.classList.toggle("closed");
@@ -34,6 +34,36 @@ function renderNoData() {
   noData.textContent = "No Data";
   noData.classList.add("noData");
   toDoContainer.appendChild(noData);
+}
+function sortName() {
+  const selected = document.querySelector(".listBtn.selected");
+  const selectedId = parseInt(selected.dataset.id);
+  const selectedList = lists.find(function (item) {
+    return item.ID === selectedId;
+  });
+  selectedList.todos.sort(function (a, b) {
+    if (a.checked !== b.checked) {
+      return a.checked - b.checked;
+    }
+    return a.name.localeCompare(b.name);
+  });
+  localStorage.setItem("lists", JSON.stringify(lists));
+  renderTodos();
+}
+function sortDate() {
+  const selected = document.querySelector(".listBtn.selected");
+  const selectedId = parseInt(selected.dataset.id);
+  const selectedList = lists.find(function (item) {
+    return item.ID === selectedId;
+  });
+  selectedList.todos.sort(function (a, b) {
+    if (a.checked !== b.checked) {
+      return a.checked - b.checked;
+    }
+    return b.createdAt - a.createdAt;
+  });
+  localStorage.setItem("lists", JSON.stringify(lists));
+  renderTodos();
 }
 
 const now = new Date();
@@ -323,7 +353,7 @@ function createToDo(name, id, checked, listId, date) {
         return todo.ID === todoId;
       });
     });
-    currentSort = 'custom';
+    currentSort = "custom";
     const currentOption = document.querySelector(".sort-option.active");
     if (currentOption) {
       currentOption.classList.remove("active");
@@ -356,11 +386,17 @@ function createToDo(name, id, checked, listId, date) {
       return item.ID === id;
     });
     list.todos[position].checked = checkbox.checked;
-    list.todos.sort(function (a, b) {
-      return a.checked - b.checked;
-    });
-    localStorage.setItem("lists", JSON.stringify(lists));
-    renderTodos();
+    if (currentSort === "name") {
+      sortName();
+    } else if (currentSort === "date") {
+      sortDate();
+    } else {
+      list.todos.sort(function (a, b) {
+        return a.checked - b.checked;
+      });
+      localStorage.setItem("lists", JSON.stringify(lists));
+      renderTodos();
+    }
   });
   input.addEventListener("keydown", function (event) {
     if (event.key === "Enter") {
@@ -401,7 +437,7 @@ addToDo.addEventListener("click", function () {
     checked: false,
     name: "",
     date: dateSelected,
-    createdAt: Date.now()
+    createdAt: Date.now(),
   });
   localStorage.setItem("lists", JSON.stringify(lists));
   createToDo("", nextToDoID, false, selectedId, dateSelected);
@@ -417,7 +453,7 @@ addToDo.addEventListener("click", function () {
       }
     });
   }
-  renderTodos()
+  renderTodos();
 });
 
 const sortBtn = document.getElementById("sortBtn");
@@ -435,40 +471,22 @@ sortOptions.forEach(function (option) {
     }
     option.classList.add("active");
     currentSort = option.dataset.sort;
+    localStorage.setItem("currentSort", currentSort);
     sortDropdown.classList.remove("show");
     if (currentSort === "name") {
-      const selected = document.querySelector(".listBtn.selected");
-      const selectedId = parseInt(selected.dataset.id);
-      const selectedList = lists.find(function (item) {
-        return item.ID === selectedId;
-      });
-      selectedList.todos.sort(function (a, b) {
-        if (a.checked !== b.checked) {
-          return a.checked - b.checked;
-        }
-        return a.name.localeCompare(b.name);
-      });
-      localStorage.setItem("lists", JSON.stringify(lists));
-      renderTodos();
+      sortName();
     }
     if (currentSort === "date") {
-      const selected = document.querySelector(".listBtn.selected");
-      const selectedId = parseInt(selected.dataset.id);
-      const selectedList = lists.find(function (item) {
-        return item.ID === selectedId;
-      });
-      selectedList.todos.sort(function (a, b) {
-        if (a.checked !== b.checked) {
-          return a.checked - b.checked;
-        }
-        return b.createdAt - a.createdAt;
-      });
-      localStorage.setItem("lists", JSON.stringify(lists));
-      renderTodos();
+      sortDate();
     }
   });
 });
-document.addEventListener("click", function(event) {
+const savedSort = document.querySelector(`[data-sort="${currentSort}"]`);
+if (savedSort) {
+  document.querySelector(".sort-option.active").classList.remove("active");
+  savedSort.classList.add("active");
+}
+document.addEventListener("click", function (event) {
   if (!sortBtn.contains(event.target) && !sortDropdown.contains(event.target)) {
     sortDropdown.classList.remove("show");
   }
