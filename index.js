@@ -7,13 +7,18 @@ close.addEventListener("click", function () {
   right.classList.toggle("closed");
 });
 
-function renderTodos() {
+function getSelectedList() {
   const selected = document.querySelector(".listBtn.selected");
+  if (!selected) return null
   const selectedId = parseInt(selected.dataset.id);
-  toDoContainer.innerHTML = "";
-  const selectedList = lists.find(function (item) {
+  return lists.find(function (item) {
     return item.ID === selectedId;
   });
+}
+
+function renderTodos() {
+  const selectedList = getSelectedList();
+  toDoContainer.innerHTML = "";
 
   let dateSelected = null;
   const current = document.querySelector(".c-numbers .selected");
@@ -22,7 +27,7 @@ function renderTodos() {
   }
   selectedList.todos.forEach(function (todo) {
     if (dateSelected === null || todo.date === dateSelected) {
-      createToDo(todo.name, todo.ID, todo.checked, selectedId, todo.date);
+      createToDo(todo.name, todo.ID, todo.checked, selectedList.ID, todo.date);
     }
   });
   if (toDoContainer.children.length === 0) {
@@ -36,11 +41,7 @@ function renderNoData() {
   toDoContainer.appendChild(noData);
 }
 function sortName() {
-  const selected = document.querySelector(".listBtn.selected");
-  const selectedId = parseInt(selected.dataset.id);
-  const selectedList = lists.find(function (item) {
-    return item.ID === selectedId;
-  });
+  const selectedList = getSelectedList();
   selectedList.todos.sort(function (a, b) {
     if (a.checked !== b.checked) {
       return a.checked - b.checked;
@@ -51,11 +52,7 @@ function sortName() {
   renderTodos();
 }
 function sortDate() {
-  const selected = document.querySelector(".listBtn.selected");
-  const selectedId = parseInt(selected.dataset.id);
-  const selectedList = lists.find(function (item) {
-    return item.ID === selectedId;
-  });
+  const selectedList = getSelectedList();
   selectedList.todos.sort(function (a, b) {
     if (a.checked !== b.checked) {
       return a.checked - b.checked;
@@ -127,12 +124,8 @@ function renderCalendar() {
       numbers.classList.add("selected");
       renderTodos();
     });
-    const selected = document.querySelector(".listBtn.selected");
-    if (selected) {
-      const selectedId = parseInt(selected.dataset.id);
-      const selectedList = lists.find(function (item) {
-        return item.ID === selectedId;
-      });
+    const selectedList = getSelectedList();
+    if (selectedList) {
       const dateString = `${i}-${month + 1}-${year}`;
       const hasTodo = selectedList.todos.some(function (todo) {
         return todo.date === dateString;
@@ -343,11 +336,7 @@ function createToDo(name, id, checked, listId, date) {
     wrappers.forEach(function (wrapper) {
       newOrder.push(parseInt(wrapper.dataset.id));
     });
-    const selected = document.querySelector(".listBtn.selected");
-    const selectedId = parseInt(selected.dataset.id);
-    const selectedList = lists.find(function (item) {
-      return item.ID === selectedId;
-    });
+    const selectedList = getSelectedList();
     selectedList.todos = newOrder.map(function (todoId) {
       return selectedList.todos.find(function (todo) {
         return todo.ID === todoId;
@@ -413,14 +402,13 @@ function createToDo(name, id, checked, listId, date) {
     });
     list.todos[position].name = input.value;
     localStorage.setItem("lists", JSON.stringify(lists));
+    if (currentSort === "name") {
+      sortName();
+    }
   });
 }
 addToDo.addEventListener("click", function () {
-  const selected = document.querySelector(".listBtn.selected");
-  const selectedId = parseInt(selected.dataset.id);
-  const selectedList = lists.find(function (item) {
-    return item.ID === selectedId;
-  });
+  const selectedList = getSelectedList();
   const noData = document.querySelector(".noData");
 
   let dateSelected = null;
@@ -440,7 +428,7 @@ addToDo.addEventListener("click", function () {
     createdAt: Date.now(),
   });
   localStorage.setItem("lists", JSON.stringify(lists));
-  createToDo("", nextToDoID, false, selectedId, dateSelected);
+  createToDo("", nextToDoID, false, selectedList.ID, dateSelected);
   nextToDoID++;
   const selectedDay = document.querySelector(".c-numbers .selected");
   const selectedDayText = selectedDay ? selectedDay.textContent : null;
