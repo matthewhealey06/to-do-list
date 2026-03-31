@@ -9,13 +9,15 @@ close.addEventListener("click", function () {
 
 function getSelectedList() {
   const selected = document.querySelector(".listBtn.selected");
-  if (!selected) return null
+  if (!selected) return null;
   const selectedId = parseInt(selected.dataset.id);
   return lists.find(function (item) {
     return item.ID === selectedId;
   });
 }
-
+function saveLists() {
+  localStorage.setItem("lists", JSON.stringify(lists));
+}
 function renderTodos() {
   const selectedList = getSelectedList();
   toDoContainer.innerHTML = "";
@@ -48,7 +50,7 @@ function sortName() {
     }
     return a.name.localeCompare(b.name);
   });
-  localStorage.setItem("lists", JSON.stringify(lists));
+  saveLists();
   renderTodos();
 }
 function sortDate() {
@@ -59,7 +61,7 @@ function sortDate() {
     }
     return b.createdAt - a.createdAt;
   });
-  localStorage.setItem("lists", JSON.stringify(lists));
+  saveLists();
   renderTodos();
 }
 
@@ -171,7 +173,7 @@ function createList(name, id) {
       return item.ID === id;
     });
     lists.splice(position, 1);
-    localStorage.setItem("lists", JSON.stringify(lists));
+    saveLists();
     listBtn.remove();
     event.stopPropagation();
     renderTodos();
@@ -190,7 +192,7 @@ function createList(name, id) {
       return item.ID === id;
     });
     lists[position].name = nameSpan.textContent;
-    localStorage.setItem("lists", JSON.stringify(lists));
+    saveLists();
   });
   listBtn.addEventListener("click", function () {
     const currentList = document.querySelector(".listBtn.selected");
@@ -239,7 +241,7 @@ if (saved) {
   }
 } else {
   lists.push({ ID: nextID, name: "New List", todos: [] });
-  localStorage.setItem("lists", JSON.stringify(lists));
+  saveLists();
   createList("New List", nextID);
   nextID++;
 }
@@ -252,7 +254,7 @@ if (firstList) {
 const newList = document.getElementById("btn2");
 newList.addEventListener("click", function () {
   lists.push({ ID: nextID, name: "New List", todos: [] });
-  localStorage.setItem("lists", JSON.stringify(lists));
+  saveLists();
   createList("New List", nextID);
   nextID++;
 });
@@ -348,7 +350,7 @@ function createToDo(name, id, checked, listId, date) {
       currentOption.classList.remove("active");
     }
     document.querySelector('[data-sort="custom"]').classList.add("active");
-    localStorage.setItem("lists", JSON.stringify(lists));
+    saveLists();
   });
 
   deleteTask.addEventListener("click", function (event) {
@@ -359,7 +361,7 @@ function createToDo(name, id, checked, listId, date) {
       return item.ID === id;
     });
     list.todos.splice(position, 1);
-    localStorage.setItem("lists", JSON.stringify(lists));
+    saveLists();
     toDoWrapper.remove();
     event.stopPropagation();
     if (list.todos.length === 0) {
@@ -383,7 +385,7 @@ function createToDo(name, id, checked, listId, date) {
       list.todos.sort(function (a, b) {
         return a.checked - b.checked;
       });
-      localStorage.setItem("lists", JSON.stringify(lists));
+      saveLists();
       renderTodos();
     }
   });
@@ -401,7 +403,7 @@ function createToDo(name, id, checked, listId, date) {
       return item.ID === id;
     });
     list.todos[position].name = input.value;
-    localStorage.setItem("lists", JSON.stringify(lists));
+    saveLists();
     if (currentSort === "name") {
       sortName();
     }
@@ -427,7 +429,7 @@ addToDo.addEventListener("click", function () {
     date: dateSelected,
     createdAt: Date.now(),
   });
-  localStorage.setItem("lists", JSON.stringify(lists));
+  saveLists();
   createToDo("", nextToDoID, false, selectedList.ID, dateSelected);
   nextToDoID++;
   const selectedDay = document.querySelector(".c-numbers .selected");
